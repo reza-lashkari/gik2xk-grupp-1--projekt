@@ -1,3 +1,4 @@
+const { validate } = require("validate.js");
 
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('ratings', {

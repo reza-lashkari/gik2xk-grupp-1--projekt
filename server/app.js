@@ -12,6 +12,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/products', require('./routes/productsRoute'));
 app.use('/customers', require('./routes/customersRoute'));
+app.use('/ratings', require('./routes/ratingsRoute'));
+app.use('/cart', require('./routes/cartRoute'));
 
 
 module.exports = app;

@@ -65,7 +65,7 @@ router.delete('/', (req, res) => {
             id: req.body.id
         }
     }).then(result => {
-        res.json(`produkten raderades ${result}`);
+        res.json(`kunden raderades ${result}`);
     });
 });
 
