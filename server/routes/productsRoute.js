@@ -1,18 +1,24 @@
 const router = require('express').Router();
 const db = require('../models');
 const validate = require("validate.js");
+const productService = require('../services/productServices');
+
+
 // GET request för att hämta produkter
 router.get('/', (req, res) => {
-    db.products.findAll().then((result) => {
-        res.send(result);
+    productService.getAll().then((result) => {
+        res.status(result.status).json(result.data);
     });
 });
 
+
+
 // POST request för att skapa en ny produkt (eller ta emot data)
 router.post('/', (req, res) => {
-db.products.create(req.body).then(result => {
-    res.send(result);
-});
+    const products = req.body;
+    productService.getAll().then((result) => {
+        res.status(result.status).json(result.data);
+    });
 });
 router.put('/', (req, res) => {
  db.products.update(req.body, {

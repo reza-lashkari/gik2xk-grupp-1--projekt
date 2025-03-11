@@ -1,3 +1,4 @@
+const { validate } = require("validate.js");
 const { all } = require("../app");
 
 module.exports = (sequelize, DataTypes) => {
@@ -10,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     Title: {
       type: DataTypes.STRING (100),
       allowNull: false,
+      validate: {len: [2,100]}
     },
     Description: {
       type: DataTypes.STRING (1000),
