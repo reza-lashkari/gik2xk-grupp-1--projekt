@@ -130,7 +130,21 @@ async function update(products, id) {
 
 
 
-function destroy(){}
+async function destroy(id) {
+  if (!id) {
+      return createResponsError(422, "Id är obligatoriskt");
+  }
+  try {
+      const deleted = await db.products.destroy({ where: { id } });
+      if (!deleted) {
+          return createResponsError(404, "Produkten hittades inte");
+      }
+      return createResponsSuccess({ message: "Produkten har tagits bort" });
+  } catch (error) {
+      console.error("Fel vid borttagning av produkt:", error);
+      return createResponsError(500, "Ett oväntat fel inträffade", error.message);
+  }
+}
 
 module.exports = {
     addRating,
