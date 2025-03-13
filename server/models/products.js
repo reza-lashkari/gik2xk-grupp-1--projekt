@@ -8,12 +8,12 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    Title: {
+    title: {
       type: DataTypes.STRING (100),
       allowNull: false,
       validate: {len: [2,100]}
     },
-    Description: {
+    description: {
       type: DataTypes.STRING (1000),
       allowNull: false,
     },

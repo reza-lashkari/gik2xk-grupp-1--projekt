@@ -15,10 +15,59 @@ const constraints = {
         }
     }
 };
+
+async function getById(id) {
+  try {
+    const product = await db.products.findOne({ // 🔥 Ensure `products` is lowercase!
+      where: { id },
+      include: [
+        {
+          model: db.ratings,  // 🔥 Ensure `ratings` is lowercase!
+          as: "ratings" // This should match the alias defined in associations
+        }
+      ]
+    });
+
+    if (!product) {
+      return createResponsError(404, "Produkten hittades inte");
+    }
+
+    return createResponsSuccess(product);
+  } catch (error) {
+    console.error("Fel vid hämtning av produkt:", error);  // 🔥 Log the actual error!
+    return createResponsError(500, error.message || "Serverfel vid hämtning av produkt");
+  }
+}
+
+
+
+async function addRating(productId, rating, comment) {
+  try {
+    // Kontrollera att produkten finns
+    const product = await db.products.findByPk(productId);
+    if (!product) {
+      return { status: 404, data: { message: "Produkten hittades inte" } };
+    }
+
+    // Skapa och spara betyget i databasen
+    const newRating = await db.ratings.create({
+      product_id: productId,
+      rating: rating,
+      comment: comment
+    });
+
+    return { status: 201, data: newRating };
+  } catch (error) {
+    console.error("Fel vid tillägg av betyg:", error);
+    return { status: 500, data: { message: "Serverfel vid tillägg av betyg" } };
+  }
+}
+
+
 async function getAll(){
  try{
-  const allProducts = await db.products.findAll();
-  return createResponsSuccess(allProducts);
+  const allProducts = await db.products.findAll(  );
+  return createResponsSuccess(allProducts.map((products) => _formatProducts(products)));
 }catch(error){
     return createResponsError(error.status,error.message);
 }
@@ -39,10 +88,23 @@ async function create(product){
            
         }
 }
+
+function _formatProducts(products) {
+      return {
+      id: products.id,
+      title: products.title,
+      imageUrl: products.imageUrl,
+      createdAt: products.createdAt,
+      updatedAt: products.updatedAt,
+      ratings: []
+    };
+}
+
 function update(){}
 function destroy(){}
 
 module.exports = {
+    getById,
     getAll,
     create,
     update,
