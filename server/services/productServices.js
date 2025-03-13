@@ -43,22 +43,17 @@ async function getById(id) {
 
 async function addRating(productId, rating, comment) {
   try {
-    // Kontrollera att produkten finns
-    const product = await db.products.findByPk(productId);
-    if (!product) {
-      return { status: 404, data: { message: "Produkten hittades inte" } };
-    }
+      const product = await db.products.findByPk(productId);
+      if (!product) {
+          return createResponsError(404, "Produkten hittades inte");
+      }
 
-    // Skapa och spara betyget i databasen
-    const newRating = await db.ratings.create({
-      productId: productId,
-      rating: rating,
-    });
+      const newRating = await db.ratings.create({ productId, rating, comment });
 
-    return { status: 201, data: newRating };
+      return createResponsSuccess(newRating);
   } catch (error) {
-    console.error("Fel vid tillägg av betyg:", error);
-    return { status: 500, data: { message: "Serverfel vid tillägg av betyg" } };
+      console.error("Fel vid tillägg av betyg:", error);
+      return createResponsError(500, "Serverfel vid tillägg av betyg", error.message);
   }
 }
 
@@ -102,15 +97,15 @@ function _formatProducts(products) {
 async function update(products, id) {
   const invalidData = validate(products, constraints);
   if (!id) {
-    return createResponseError(422, 'Id är obligatoriskt');
+    return (422, 'Id är obligatoriskt');
   }
   if (invalidData) {
-    return createResponseError(422, invalidData);
+    return (422, invalidData);
   }
   try {
     const existingProducts = await db.products.findOne({ where: { id } });
     if (!existingProducts) {
-      return createResponseError(404, 'Hittade inget inlägg att uppdatera.');
+      return (404, 'Hittade inget inlägg att uppdatera.');
     }
 
     // Uppdatera posten
@@ -122,7 +117,7 @@ async function update(products, id) {
       data: updatedProducts,
     };
   } catch (error) {
-    return createResponseError(500, 'Ett oväntat fel inträffade', error);
+    return (500, 'Ett oväntat fel inträffade', error);
   }
 }
 

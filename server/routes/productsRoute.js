@@ -36,14 +36,14 @@ router.post('/', (req, res) => {
 
 
 router.post('/:id/addRating', (req, res) => {
-    const { rating, comment } = req.body;
+    const { rating } = req.body;
     const id = req.params.id;
   
     if (!rating || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "Betyg måste vara mellan 1 och 5" });
     }
   
-    productServices.addRating(id, rating, comment)
+    productServices.addRating(id, rating)
       .then((result) => {
         res.status(result.status).json(result.data);
       })
