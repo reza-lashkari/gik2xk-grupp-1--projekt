@@ -56,15 +56,14 @@ router.post('/:id/addRating', (req, res) => {
 
 
 
-router.put('/', (req, res) => {
- db.products.update(req.body, {
-    where: {
-        id: req.body.id
-    }
-}).then((result => {
-    res.send(result);
-}));
-});
+  router.put('/', (req, res) => {
+    const products = req.body;
+    const id = products.id;
+  
+    productServices.update(products, id).then((result) => {
+      res.status(result.status).json(result.data);
+    });
+  });
 
 
 router.delete('/', (req, res) => {

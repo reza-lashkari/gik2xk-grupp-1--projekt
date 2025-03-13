@@ -73,14 +73,14 @@ async function getAll(){
   
 }
 
-async function create(product){
-    const invalidData = validate(product, constraints);
+async function create(products){
+    const invalidData = validate(products, constraints);
         if (invalidData) {
             return createResponsError(422, invalidData);
         } else {
             try{
-               const newProduct = await db.products.create(product);
-                return createResponsSuccess(newProduct);
+               const newProducts = await db.products.create(products);
+                return createResponsSuccess(newProducts);
             }catch(error) {
                 return createResponsError(error.status, error.message);
             }
@@ -99,7 +99,37 @@ function _formatProducts(products) {
     };
 }
 
-function update(){}
+async function update(products, id) {
+  const invalidData = validate(products, constraints);
+  if (!id) {
+    return createResponseError(422, 'Id är obligatoriskt');
+  }
+  if (invalidData) {
+    return createResponseError(422, invalidData);
+  }
+  try {
+    const existingProducts = await db.products.findOne({ where: { id } });
+    if (!existingProducts) {
+      return createResponseError(404, 'Hittade inget inlägg att uppdatera.');
+    }
+
+    // Uppdatera posten
+    const updatedProducts = await db.products.update(products, { where: { id } });
+
+    return {
+      status: 200,
+      message: 'Inlägget uppdaterades framgångsrikt',
+      data: updatedProducts,
+    };
+  } catch (error) {
+    return createResponseError(500, 'Ett oväntat fel inträffade', error);
+  }
+}
+
+
+
+
+
 function destroy(){}
 
 module.exports = {
