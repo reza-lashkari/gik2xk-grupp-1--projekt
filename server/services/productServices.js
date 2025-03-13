@@ -51,9 +51,8 @@ async function addRating(productId, rating, comment) {
 
     // Skapa och spara betyget i databasen
     const newRating = await db.ratings.create({
-      product_id: productId,
+      productId: productId,
       rating: rating,
-      comment: comment
     });
 
     return { status: 201, data: newRating };
@@ -96,7 +95,7 @@ function _formatProducts(products) {
       imageUrl: products.imageUrl,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt,
-      ratings: []
+      ratings: products.ratings
     };
 }
 
@@ -104,6 +103,7 @@ function update(){}
 function destroy(){}
 
 module.exports = {
+    addRating,
     getById,
     getAll,
     create,

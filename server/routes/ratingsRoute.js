@@ -17,3 +17,4 @@ db.ratings.create(req.body).then(result => {
 
 
 module.exports = router;
+
