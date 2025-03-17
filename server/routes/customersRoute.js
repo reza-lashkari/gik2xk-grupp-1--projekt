@@ -15,14 +15,29 @@ const constraints = {
         }
     }
 };
-router.get('/:id/getCart', (req, res) => {
-     const id = req.params.id;
-        postService.getByAuthor(id).then((result) => {
-            res.status(result.status).json(result.data);
-        });
+// Hämta senaste varukorgen för en användare
+router.get("/:id/getCart", async (req, res) => {
+    try {
+        const userId = req.params.id;
 
+
+        // Hitta den senaste varukorgen för användaren
+        const latestCart = await Cart.find({ userId })
+            .sort({ createdAt: -1 }) // Sortera så senaste kommer först
+            .limit(1) // Hämta bara en varukorg
+            .populate("products.productId"); // Hämta produktinfo
+
+
+        if (!latestCart.length) {
+            return res.status(404).json({ message: "Ingen varukorg hittades" });
+        }
+
+
+        res.json(latestCart[0].products); // Returnera produkter från den senaste varukorgen
+    } catch (error) {
+        res.status(500).json({ message: "Serverfel", error });
+    }
 });
-
 router.get('/', (req, res) => {
     db.customers.findAll().then((result) => {
         res.send(result);
