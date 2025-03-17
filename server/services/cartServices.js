@@ -1,5 +1,7 @@
 const db = require('../models');
 const { createResponsError, createResponsSuccess } = require('../helpers/responsHelper');
+
+
 async function addProductToCart(customerId, productId, amount) {
     // Hämta eller skapa en varukorg
     const [cart] = await db.carts.findOrCreate({
@@ -29,8 +31,11 @@ async function addProductToCart(customerId, productId, amount) {
 }
 async function getUserCart(customerId) {
     try {
-        const latestCart = await db.carts.findOne({
+        console.log("Hämtar varukorg för customerId:", customerId); // 🔹 Logga för felsökning
+
+        const [latestCart, created] = await db.carts.findOrCreate({
             where: { customerId, payed: false },
+            defaults: { customerId, payed: false },
             order: [['createdAt', 'DESC']],
             include: [{
                 model: db.cartRows,
@@ -38,25 +43,26 @@ async function getUserCart(customerId) {
             }]
         });
 
-        if (!latestCart) {
-            return createResponsError(404, "Ingen varukorg hittades");
+        console.log("Varukorg hittad:", latestCart.id, "Ny skapad:", created);
+
+        // Om den är ny, returnera en tom lista
+        if (created) {
+            return createResponsSuccess([]);
         }
 
-        // Format the cart data for better readability
-        const cartItems = latestCart.cartRows.map(row => {
-            return {
-                productId: row.product.id,
-                title: row.product.title,
-                price: row.product.price,
-                amount: row.amount,
-                totalPrice: row.amount * row.product.price
-            };
-        });
+        // Formatera datan
+        const cartItems = latestCart.cartRows.map(row => ({
+            productId: row.product.id,
+            title: row.product.title,
+            price: row.product.price,
+            amount: row.amount,
+            totalPrice: row.amount * row.product.price
+        }));
 
         return createResponsSuccess(cartItems);
     } catch (error) {
         console.error("Fel vid hämtning av varukorg:", error);
-        return createResponsError(500, "Serverfel vid hämtning av varukorg");
+        return createResponsError(500, error.message || "Serverfel vid hämtning av varukorg");
     }
 }
 
