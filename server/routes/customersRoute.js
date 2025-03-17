@@ -1,87 +1,94 @@
 const router = require('express').Router();
-const db = require('../models');
+const { Model } = require('sequelize');
+const { Cart, Customer } = require('../models');
 const validate = require('validate.js');
 
 const constraints = {
     email: {
         length: {
-        minimum: 4,
-        maximum: 200,
-        tooShort: '^E-postadressen måste vara minst %{count} tecken långt.',
-        tooLong: '^E-postadressen får inte vara längre än %{count} tecken långt.'
+            minimum: 4,
+            maximum: 200,
+            tooShort: '^E-postadressen måste vara minst %{count} tecken lång.',
+            tooLong: '^E-postadressen får inte vara längre än %{count} tecken lång.'
         },
-        email: {
-            message: "^E-postadressen är i ett felaktigt format."
-        }
+        email: { message: "^E-postadressen är i fel format." }
     }
 };
+
 // Hämta senaste varukorgen för en användare
 router.get("/:id/getCart", async (req, res) => {
     try {
-        const userId = req.params.id;
+        const customerId = req.params.id;
 
+        const latestCart = await Cart.findOne({
+            where: { customerId },
+            order: [['createdAt', 'DESC']],
+            include: [{model:CartRow, include:['products'] }]
+        });
 
-        // Hitta den senaste varukorgen för användaren
-        const latestCart = await Cart.find({ userId })
-            .sort({ createdAt: -1 }) // Sortera så senaste kommer först
-            .limit(1) // Hämta bara en varukorg
-            .populate("products.productId"); // Hämta produktinfo
-
-
-        if (!latestCart.length) {
+        if (!latestCart) {
             return res.status(404).json({ message: "Ingen varukorg hittades" });
         }
 
+        res.json(latestCart.products);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Serverfel", error });
+    }
+});
 
-        res.json(latestCart[0].products); // Returnera produkter från den senaste varukorgen
+// CRUD för testdata
+router.get('/', async (req, res) => {
+    try {
+        const customers = await Customer.findAll();
+        res.json(customers);
     } catch (error) {
         res.status(500).json({ message: "Serverfel", error });
     }
 });
-router.get('/', (req, res) => {
-    db.customers.findAll().then((result) => {
-        res.send(result);
-    })
-});
 
-router.post('/', (req, res) => {
-    const customers = req.body;
-    const invalidData = validate(customers, constraints);
+router.post('/', async (req, res) => {
+    const customer = req.body;
+    const invalidData = validate(customer, constraints);
+
     if (invalidData) {
-        res.status(400).json(invalidData);
-    } else{
-        db.customers.create(customers).then(result => {
-            res.send(result);
-        });
+        return res.status(400).json(invalidData);
+    }
+
+    try {
+        const newCustomer = await Customer.create(customer);
+        res.json(newCustomer);
+    } catch (error) {
+        res.status(500).json({ message: "Kunde inte skapa kund", error });
     }
 });
 
-router.put('/', (req, res) => {
-    const customers = req.body;
-    const invalidData = validate(customers, constraints);
-    const id = customers.id;
-    if(invalidData || !id) {
-        res.status(400).json(invalidData || 'Id är obligatoriskt.');
-    } else {
-    db.customers
-    .update(customers, {
-        where: { id: customers.id }
-    })
-    .then(result => {
-        res.send(result);
-    });
-    }   
+router.put('/', async (req, res) => {
+    const customer = req.body;
+    const id = customer.id;
+    const invalidData = validate(customer, constraints);
+
+    if (!id || invalidData) {
+        return res.status(400).json(invalidData || { message: "Id är obligatoriskt." });
+    }
+
+    try {
+        await Customer.update(customer, { where: { id } });
+        res.json({ message: "Kunden uppdaterades." });
+    } catch (error) {
+        res.status(500).json({ message: "Kunde inte uppdatera kunden", error });
+    }
 });
 
-router.delete('/', (req, res) => {
-    db.customers
-    .destroy({
-        where: {
-            id: req.body.id
-        }
-    }).then(result => {
-        res.json(`kunden raderades ${result}`);
-    });
+router.delete('/', async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        const result = await Customer.destroy({ where: { id } });
+        res.json({ message: `Kunden raderades: ${result}` });
+    } catch (error) {
+        res.status(500).json({ message: "Kunde inte radera kunden", error });
+    }
 });
 
 module.exports = router;

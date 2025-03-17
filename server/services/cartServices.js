@@ -1,27 +1,27 @@
-// cartServices.js
 const { Cart, CartRow } = require('../models');
 
-async function addProductToCart(costumerId, productId, amount) {
-    // Hämta den senaste öppna varukorgen eller skapa en ny
+async function addProductToCart(customerId, productId, amount) {
+    // Hämta eller skapa en varukorg
     const [cart] = await Cart.findOrCreate({
         where: { customerId, status: 'open' },
+        defaults: { customerId, status: 'open' }
     });
 
-    // Kontrollera om produkten redan finns i varukorgen
+    // Hämta befintlig produkt i varukorgen
     let cartRow = await CartRow.findOne({
         where: { cartId: cart.id, productId }
     });
 
     if (cartRow) {
-        // Uppdatera antalet om produkten redan finns
+        // Uppdatera mängden om produkten redan finns
         cartRow.amount += amount;
         await cartRow.save();
     } else {
-        // Lägg till produkten i varukorgen
+        // Lägg till produkten om den inte finns
         cartRow = await CartRow.create({
             cartId: cart.id,
             productId,
-            amount,
+            amount
         });
     }
 
