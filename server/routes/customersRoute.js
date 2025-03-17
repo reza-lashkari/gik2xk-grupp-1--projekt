@@ -63,7 +63,7 @@ router.put('/', async (req, res) => {
     }
 
     try {
-        await Customer.update(customer, { where: { id } });
+        await db.customers.update(customer, { where: { id } });
         res.json({ message: "Kunden uppdaterades." });
     } catch (error) {
         res.status(500).json({ message: "Kunde inte uppdatera kunden", error });
