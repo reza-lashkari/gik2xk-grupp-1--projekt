@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { Model } = require('sequelize');
 const { Cart, product, CartRow } = require('../models');
 const validate = require('validate.js');
+const db = require('../models');
 
 const constraints = {
     email: {
@@ -29,7 +30,7 @@ router.get("/:id/getCart", async (req, res) => {
 // CRUD för testdata
 router.get('/', async (req, res) => {
     try {
-        const customers = await Customer.findAll();
+        const customers = await db.customers.findAll();
         res.json(customers);
     } catch (error) {
         res.status(500).json({ message: "Serverfel", error });
@@ -45,7 +46,7 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const newCustomer = await Customer.create(customer);
+        const newCustomer = await db.customers.create(customer);
         res.json(newCustomer);
     } catch (error) {
         res.status(500).json({ message: "Kunde inte skapa kund", error });
@@ -73,7 +74,7 @@ router.delete('/', async (req, res) => {
     const { id } = req.body;
 
     try {
-        const result = await Customer.destroy({ where: { id } });
+        const result = await db.customers.destroy({ where: { id } });
         res.json({ message: `Kunden raderades: ${result}` });
     } catch (error) {
         res.status(500).json({ message: "Kunde inte radera kunden", error });
