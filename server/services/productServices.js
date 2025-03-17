@@ -18,24 +18,38 @@ const constraints = {
 
 async function getById(id) {
   try {
-    const product = await db.products.findOne({ // 🔥 Ensure `products` is lowercase!
-      where: { id },
-      include: [
-        {
-          model: db.ratings,  // 🔥 Ensure `ratings` is lowercase!
-          as: "ratings" // This should match the alias defined in associations
-        }
-      ]
-    });
+      const product = await db.products.findOne({
+          where: { id },
+          include: [
+              {
+                  model: db.ratings,
+                  as: "ratings" // 🔥 Viktigt att aliaset matchar associationen
+              }
+          ]
+      });
 
-    if (!product) {
-      return createResponsError(404, "Produkten hittades inte");
-    }
+      if (!product) {
+          return createResponsError(404, "Produkten hittades inte");
+      }
 
-    return createResponsSuccess(product);
+      // 🔥 Hämta snittbetyget
+      const averageRating = await db.ratings.findOne({
+          where: { productId: id },
+          attributes: [
+              [db.sequelize.fn('AVG', db.sequelize.col('rating')), 'averageRating']
+          ],
+          raw: true
+      });
+
+      // 🔥 Lägg till snittbetyget i svaret
+      return createResponsSuccess({
+          ...product.get(), // Omvandlar Sequelize-objekt till JSON
+          averageRating: averageRating.averageRating ? parseFloat(averageRating.averageRating).toFixed(1) : 0
+      });
+
   } catch (error) {
-    console.error("Fel vid hämtning av produkt:", error);  // 🔥 Log the actual error!
-    return createResponsError(500, error.message || "Serverfel vid hämtning av produkt");
+      console.error("Fel vid hämtning av produkt:", error);
+      return createResponsError(500, error.message || "Serverfel vid hämtning av produkt");
   }
 }
 
@@ -67,6 +81,7 @@ async function getAll(){
 }
   
 }
+
 
 async function create(products){
     const invalidData = validate(products, constraints);
