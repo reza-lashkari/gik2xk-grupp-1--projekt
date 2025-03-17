@@ -87,6 +87,8 @@ function _formatProducts(products) {
       return {
       id: products.id,
       title: products.title,
+      description: products.description,
+      price: products.price,
       imageUrl: products.imageUrl,
       createdAt: products.createdAt,
       updatedAt: products.updatedAt,
