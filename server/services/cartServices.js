@@ -29,6 +29,7 @@ async function addProductToCart(customerId, productId, amount) {
 
     return cartRows;
 }
+
 async function getUserCart(customerId) {
     try {
         console.log("Hämtar varukorg för customerId:", customerId); // 🔹 Logga för felsökning
@@ -45,12 +46,12 @@ async function getUserCart(customerId) {
 
         console.log("Varukorg hittad:", latestCart.id, "Ny skapad:", created);
 
-        // Om den är ny, returnera en tom lista
+        // Om den är ny, returnera en tom varukorg
         if (created) {
-            return createResponsSuccess([]);
+            return createResponsSuccess({ cartItems: [], totalCartPrice: 0 });
         }
 
-        // Formatera datan
+        // Formatera produktdatan
         const cartItems = latestCart.cartRows.map(row => ({
             productId: row.product.id,
             title: row.product.title,
@@ -59,12 +60,16 @@ async function getUserCart(customerId) {
             totalPrice: row.amount * row.product.price
         }));
 
-        return createResponsSuccess(cartItems);
+        // Beräkna totalpris för hela varukorgen
+        const totalCartPrice = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+
+        return createResponsSuccess({ cartItems, totalCartPrice });
     } catch (error) {
         console.error("Fel vid hämtning av varukorg:", error);
         return createResponsError(500, error.message || "Serverfel vid hämtning av varukorg");
     }
 }
+
 async function updateProductAmount(customerId, productId, amount) {
     try {
         const cart = await db.carts.findOne({
