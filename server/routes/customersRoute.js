@@ -29,7 +29,7 @@ router.get("/:id/getCart", async (req, res) => {
 // CRUD för testdata
 router.get('/', async (req, res) => {
     try {
-        const customers = await Customer.findAll();
+        const customers = await debug.customers.findAll();
         res.json(customers);
     } catch (error) {
         res.status(500).json({ message: "Serverfel", error });
