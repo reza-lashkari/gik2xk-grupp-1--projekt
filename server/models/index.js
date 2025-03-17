@@ -38,8 +38,8 @@ Object.keys(db).forEach(modelName => {
 });
 db.customers.hasMany(db.carts, { foreignKey: { allowNull: false, onDelete: 'CASCADE' } });
 db.carts.belongsTo(db.customers, { allowNull: false, onDelete: 'CASCADE' });
-db.carts.belongsToMany(db.products, { through: db.cartRow });
-db.products.belongsToMany(db.carts, { through: db.cartRow });
+db.carts.belongsToMany(db.products, { through: db.cartRows });
+db.products.belongsToMany(db.carts, { through: db.cartRows });
 db.products.hasMany(db.ratings, { onDelete:'Cascade' });
 db.ratings.belongsTo(db.products);
 db.sequelize = sequelize;

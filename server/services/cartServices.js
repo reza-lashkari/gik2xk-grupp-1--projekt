@@ -1,31 +1,31 @@
-const { Cart } = require('../models');
-
+const db = require('../models');
+const { createResponsError, createResponsSuccess } = require('../helpers/responsHelper');
 async function addProductToCart(customerId, productId, amount) {
     // Hämta eller skapa en varukorg
-    const [cart] = await Cart.findOrCreate({
+    const [cart] = await db.carts.findOrCreate({
         where: { customerId, payed: false },
         defaults: { customerId, payed: false }
     });
 
     // Hämta befintlig produkt i varukorgen
-    let cartRow = await db.cartRow.findOne({
+    let cartRows = await db.cartRows.findOne({
         where: { cartId: cart.id, productId }
     });
 
-    if (cartRow) {
+    if (cartRows) {
         // Uppdatera mängden om produkten redan finns
-        cartRow.amount += amount;
-        await cartRow.save();
+        cartRows.amount += amount;
+        await cartRows.save();
     } else {
         // Lägg till produkten om den inte finns
-        cartRow = await db.cartRow.create({
+        cartRows = await db.cartRows.create({
             cartId: cart.id,
             productId,
             amount
         });
     }
 
-    return cartRow;
+    return cartRows;
 }
 async function getUserCart(customerId) {
     try {
@@ -33,7 +33,7 @@ async function getUserCart(customerId) {
             where: { customerId, payed: false },
             order: [['createdAt', 'DESC']],
             include: [{
-                model: db.cartRow,
+                model: db.cartRows,
                 include: [db.products]
             }]
         });
