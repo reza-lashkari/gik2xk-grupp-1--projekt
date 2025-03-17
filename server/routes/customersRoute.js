@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { Model } = require('sequelize');
-const { Cart, Customer } = require('../models');
+const { Cart, product, CartRow } = require('../models');
 const validate = require('validate.js');
 
 const constraints = {
@@ -15,26 +15,15 @@ const constraints = {
     }
 };
 
-// Hämta senaste varukorgen för en användare
 router.get("/:id/getCart", async (req, res) => {
-    try {
+     try { 
         const customerId = req.params.id;
-
-        const latestCart = await Cart.findOne({
-            where: { customerId },
-            order: [['createdAt', 'DESC']],
-            include: [{model:CartRow, include:['products'] }]
-        });
-
-        if (!latestCart) {
-            return res.status(404).json({ message: "Ingen varukorg hittades" });
-        }
-
-        res.json(latestCart.products);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Serverfel", error });
-    }
+        const result = await cartServices.getUserCart(customerId);
+        res.status(result.status).json(result.data);
+    } catch (error) { 
+        console.error(error); 
+        res.status(500).json({ message: "Serverfel", error }); 
+    } 
 });
 
 // CRUD för testdata

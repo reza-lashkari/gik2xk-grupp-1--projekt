@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const cartServices = require('../services/cartServices');
 
-router.post('/cart/addProduct', async (req, res) => {
+router.post('/addProduct', async (req, res) => {
     try {
         const { customerId, productId, amount } = req.body;
         if (!customerId || !productId || !amount) {
