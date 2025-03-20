@@ -4,8 +4,9 @@ import { Box, AppBar, Toolbar, Typography, Button } from '@mui/material';
 function App() {
   return (
     <>
+
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
+        <AppBar position="static" sx = {{backgroundColor: 'gold'}}>
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               <Link to="/">Hem</Link>
@@ -16,7 +17,26 @@ function App() {
           </Toolbar>
         </AppBar>
       </Box>
+
+    
       <Outlet />
+
+
+      <Box
+        component="footer"
+        sx={{
+          width: '100%',
+          bgcolor: 'gold',
+          color: 'black',
+          textAlign: 'center',
+          py: 2,
+          mt: 4,
+        }}
+      >
+        <Typography variant="body2">
+          © 2024 Webbshoppen. Alla rättigheter reserverade.
+        </Typography>
+      </Box>
     </>
   );
 }
