@@ -1,5 +1,9 @@
-function ProductItemLarge() {
-    return ( <h3>ProductItemLarge</h3> );
+function ProductItemLarge({ product } ) {
+    return ( <div>
+        <h3>{product.title}</h3>
+        
+
+    </div> );
 }
 
 export default ProductItemLarge;

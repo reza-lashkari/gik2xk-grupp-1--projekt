@@ -2,6 +2,7 @@ import { Button } from "@mui/material";
 import ProductItemLarge from "../components/ProductItemLarge";
 import { useNavigate } from "react-router-dom";
 import RatingForm from "../components/RatingForm";
+import Rating from "../components/Rating";
 
 
 function ProductDetail() {
@@ -25,13 +26,17 @@ function ProductDetail() {
         "averageRating": "4.0"
     };
 
-    const navigate =useNavigate();
+    const navigate = useNavigate();
+
     return (
-        <div>  
-            <ProductItemLarge product = {product}/>
-            <Button onClick ={() => navigate (-1)} >Tillbaka</Button>
-            <Button onClick ={() => navigate (`/products/${product.id}/edit`)}>Ändra</Button>
+        <div>
+            <ProductItemLarge product={product} />
+            <Button onClick={() => navigate(-1)}>Tillbaka</Button>
+            <Button onClick={() => navigate(`/products/${product.id}/edit`)}>Ändra</Button>
             <RatingForm />
+            {product.ratings && product.ratings.map((rating, i) => (
+                <Rating key={`rating_${i}`} rating={rating} />
+            ))}
         </div>
     );
 }

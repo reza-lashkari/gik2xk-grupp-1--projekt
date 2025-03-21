@@ -1,5 +1,11 @@
-function Rating() {
-    return ( <h3>Rating</h3> );
+function Rating({rating}) {
+    return  
+    <>
+        <h4> {ratings.rating}</h4>
+    
+    
+    
+    </> ;
 }
 
 export default Rating;
