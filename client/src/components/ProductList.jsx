@@ -1,3 +1,5 @@
+import ProductItemSmall from "./ProductItemSmall";
+
 function ProductList() {
    const products = [
     {
@@ -46,15 +48,19 @@ function ProductList() {
         "updatedAt": "2025-03-21T09:08:05.000Z"
     }
 ]
-    return <ul>
-        <li>
-            <h3>{products[0].title}</h3>
-             <img src={products[0].imageUrl} alt={products[0].title} />
-        <p>Beskrivning: {products[0].description}</p>
-        <p>Pris: {products[0].price} kr</p>
-       
+    return(
+         <ul>
+        {products?.length > 0 ? (
+            products.map((product) => (
+            <li>
+                <ProductItemSmall product={product}/>
         </li>
-    </ul>  ;
+        ))
+    ) : (
+         <h3>Produkter saknas</h3>
+    )}    
+    </ul>  
+    );
 }
 
 export default ProductList ;
