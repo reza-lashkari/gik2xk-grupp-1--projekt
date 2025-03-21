@@ -52,7 +52,7 @@ function ProductList() {
          <ul>
         {products?.length > 0 ? (
             products.map((product) => (
-            <li>
+            <li key = {`products_${product.id}`}>
                 <ProductItemSmall product={product}/>
         </li>
         ))
