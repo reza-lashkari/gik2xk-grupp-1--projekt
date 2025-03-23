@@ -1,53 +1,45 @@
-import React, { useState } from "react";
-import Rating from "@mui/material/Rating";
-import Box from "@mui/material/Box";
-import StarIcon from "@mui/icons-material/Star";
+import { useState } from "react";
+import RatingService from "../services/RatingService";
+import {Rating} from "@mui/material/";
 
-// Exempel på etiketter för de olika rating-värdena
-const labels = {
-  0.5: "Utan betyg",
-  1: "Betyg 1",
-  1.5: "Betyg 1,5",
-  2: "Betyg 2",
-  2.5: "Betyg 2,5",
-  3: "Betyg 3",
-  3.5: "Betyg 3,5",
-  4: "Betyg 4",
-  4.5: "Betyg 4,5",
-  5: "Betyg 5"
+function RatingForm({ productId }) {
+  const [value, setValue] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!value) {
+        console.error("Inget betyg valt!");
+        return;
+    }
+
+    if (!productId) {
+        console.error("productId saknas!");
+        return;
+    }
+
+    console.log("Skickar betyg:", { productId, rating: value });
+
+    try {
+        await RatingService.addRating(productId, value);
+        console.log("Betyg skickat!");
+    } catch (error) {
+        console.error("Kunde inte skicka betyg:", error);
+    }
 };
 
-// Hjälpfunktion för att skapa rätt text
-function getLabelText(value) {
-  return `${value} ${value !== 1 ? "stjärnor" : "stjärna"}`;
-}
-
-function RatingForm() {
-  const [value, setValue] = useState(2);
-  const [hover, setHover] = useState(-1);
-
   return (
-    <>
+    <form onSubmit={handleSubmit}>
       <Rating
         name="hover-feedback"
         value={value}
         precision={0.5}
-        getLabelText={getLabelText}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-        onChangeActive={(event, newHover) => {
-          setHover(newHover);
-        }}
-        emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+        onChange={(event, newValue) => setValue(newValue)}
       />
-      {value !== null && (
-        <Box sx={{ ml: 2 }}>
-          {labels[hover !== -1 ? hover : value]}
-        </Box>
-      )}
-    </>
+      <button type="submit">Skicka betyg</button>
+    </form>
   );
 }
 
 export default RatingForm;
+
